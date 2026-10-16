@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project K.I.W.I. | Interactive Gold Matrix</title>
+    <title>Project K.I.W.I. | Infinite Unblocked Arcade</title>
     <style>
         * {
             margin: 0;
@@ -15,14 +15,14 @@
         body, html {
             width: 100%;
             height: 100%;
-            overflow: hidden;
             background-color: #000000;
             color: #d4af37;
+            overflow-x: hidden;
         }
 
-        /* Matrix Background */
+        /* Fixed Matrix Background Layer */
         #matrix-canvas {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
@@ -30,153 +30,297 @@
             z-index: 1;
         }
 
-        /* Interactive Interface Overlay */
+        /* Global UI Wrapper */
         .ui-container {
             position: relative;
             z-index: 2;
             width: 100%;
-            height: 100%;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(2px);
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(3px);
+            padding: 30px 15px;
+        }
+
+        /* Console Control Unit */
+        .console-header {
             text-align: center;
-            padding: 20px;
-        }
-
-        .kiwi-card {
+            margin-bottom: 30px;
+            width: 100%;
+            max-width: 1100px;
+            background: rgba(15, 15, 15, 0.95);
             border: 2px solid #d4af37;
-            background: rgba(15, 15, 15, 0.85);
-            padding: 40px;
+            padding: 20px;
             border-radius: 4px;
-            box-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
-            max-width: 500px;
-            transition: all 0.3s ease;
-        }
-
-        .kiwi-card:hover {
-            box-shadow: 0 0 50px rgba(212, 175, 55, 0.5);
-            transform: scale(1.02);
-            background: rgba(25, 25, 25, 0.95);
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.2);
         }
 
         h1 {
             font-size: 2.5rem;
-            letter-spacing: 4px;
-            margin-bottom: 15px;
+            letter-spacing: 6px;
             text-transform: uppercase;
-            text-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
+            text-shadow: 0 0 12px rgba(212, 175, 55, 0.7);
+            margin-bottom: 5px;
         }
 
-        .tagline {
-            font-size: 1rem;
+        .status-panel {
+            font-size: 0.8rem;
             color: #f3e5ab;
-            margin-bottom: 30px;
-            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            border-top: 1px dashed rgba(212, 175, 55, 0.3);
+            padding-top: 10px;
         }
 
-        .btn-interactive {
-            display: inline-block;
+        /* Master Web Sandbox Emulator Panel */
+        .emulator-panel {
+            width: 100%;
+            max-width: 1100px;
+            background: rgba(10, 10, 10, 0.95);
+            border: 2px solid #d4af37;
+            border-radius: 4px;
+            margin-bottom: 35px;
+            overflow: hidden;
+            box-shadow: 0 0 35px rgba(212, 175, 55, 0.3);
+            display: none; /* Hidden until a user initializes a game session */
+        }
+
+        .em-header {
+            background: #151515;
+            padding: 10px 15px;
+            border-bottom: 1px solid #d4af37;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .em-title {
+            font-weight: bold;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        .em-close {
+            background: transparent;
+            color: #ff4d4d;
+            border: 1px solid #ff4d4d;
+            padding: 2px 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .em-close:hover {
+            background: #ff4d4d;
+            color: #000;
+        }
+
+        /* Core Dynamic Frame Engine */
+        .game-frame-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* Fixed 16:9 cinematic responsive aspect ratio */
+            background: #000;
+        }
+
+        .game-frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Global Dynamic Custom URL Injection Bar */
+        .url-injector-box {
+            width: 100%;
+            max-width: 1100px;
+            background: rgba(15, 15, 15, 0.95);
+            border: 2px solid #d4af37;
+            padding: 15px;
+            margin-bottom: 35px;
+            border-radius: 4px;
+            display: flex;
+            gap: 10px;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+        }
+
+        .url-input {
+            flex: 1;
+            background: #000;
+            border: 1px solid #d4af37;
+            color: #f3e5ab;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .url-input:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+
+        .btn-inject {
+            background: #d4af37;
+            color: #000;
+            border: 1px solid #d4af37;
+            padding: 0 20px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-inject:hover {
+            background: transparent;
+            color: #d4af37;
+            box-shadow: 0 0 15px #d4af37;
+        }
+
+        /* Directory Group Main Subheadings */
+        .category-title {
+            width: 100%;
+            max-width: 1100px;
+            font-size: 1.3rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin: 20px 0 15px 0;
+            border-left: 4px solid #d4af37;
+            padding-left: 10px;
+            text-shadow: 0 0 5px rgba(212, 175, 55, 0.4);
+        }
+
+        /* Universal Matrix Game Card Grid Layout */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1100px;
+            margin-bottom: 40px;
+        }
+
+        .game-card {
+            background: rgba(15, 15, 15, 0.9);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            border-radius: 4px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.05);
+        }
+
+        .game-card:hover {
+            transform: translateY(-4px);
+            border-color: #d4af37;
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.35);
+            background: rgba(25, 25, 25, 0.95);
+        }
+
+        .game-meta {
+            margin-bottom: 15px;
+        }
+
+        .game-icon {
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+        }
+
+        .game-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .game-desc {
+            font-size: 0.75rem;
+            color: #a69363;
+            line-height: 1.4;
+        }
+
+        .btn-launch {
+            display: block;
+            width: 100%;
             background: transparent;
             color: #d4af37;
             border: 1px solid #d4af37;
-            padding: 12px 30px;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            cursor: pointer;
+            padding: 10px;
+            text-align: center;
             text-decoration: none;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            transition: all 0.2s ease;
+            cursor: pointer;
         }
 
-        .btn-interactive:hover {
+        .btn-launch:hover {
             background: #d4af37;
             color: #000;
-            box-shadow: 0 0 15px #d4af37;
             font-weight: bold;
+            box-shadow: 0 0 12px #d4af37;
         }
     </style>
 </head>
 <body>
 
+    <!-- Performance-optimized Animated Code Core Layer -->
     <canvas id="matrix-canvas"></canvas>
 
     <div class="ui-container">
-        <div class="kiwi-card">
-            <h1>🥝 KIWI.sys</h1>
-            <p class="tagline">An interactive, high-performance web interface rendering neural network telemetry inside an executive gold and obsidian matrix wrapper.</p>
-            <a href="#" class="btn-interactive" onclick="triggerOverload()">Initialize Deck</a>
+        
+        <!-- Main Frame Header Terminal -->
+        <header class="console-header">
+            <h1>🥝 KIWI.ARCADE</h1>
+            <div class="status-panel">
+                <span>CORE: ACTIVE</span>
+                <span>EMULATION LAYER: ONLINE</span>
+                <span>SANDBOX: BYPASS ENCRYPTED</span>
+            </div>
+        </header>
+
+        <!-- Command Line Matrix Injector Engine (Allows ANY game link to work instantly) -->
+        <div class="url-injector-box">
+            <input type="text" id="custom-url-src" class="url-input" placeholder="Inject any external raw game link or custom proxy target URL here...">
+            <button class="btn-inject" onclick="injectCustomMatrixTarget()">Boot Stream</button>
         </div>
-    </div>
 
-    <script>
-        const canvas = document.getElementById('matrix-canvas');
-        const ctx = canvas.getContext('2d');
+        <!-- Hidden Runtime Live Frame Window Platform -->
+        <section class="emulator-panel" id="runtime-emu-window">
+            <div class="em-header">
+                <span class="em-title" id="emu-active-title">RUNNING OBJECT CODE...</span>
+                <button class="em-close" onclick="shutdownActiveMatrixFrame()">Terminate Process</button>
+            </div>
+            <div class="game-frame-wrapper">
+                <iframe id="arcade-runtime-frame" class="game-frame" src="" allowfullscreen></iframe>
+            </div>
+        </section>
 
-        // Set dimensions
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
+        <!-- CATEGORY I: CLOUD NETWORK GAMES -->
+        <h2 class="category-title">Flash & HTML5 Network Hubs</h2>
+        <main class="games-grid">
+            <div class="game-card">
+                <div class="game-meta">
+                    <div class="game-icon">🌐</div>
+                    <div class="game-title">CrazyGames Array</div>
+                    <p class="game-desc">Direct stream connection to thousands of modern high-fidelity multi-genre HTML5 titles.</p>
+                </div>
+                <button class="btn-launch" onclick="loadMatrixFrame('https://crazygames.com', 'CrazyGames Stream')">Connect</button>
+            </div>
 
-        // Matrix character array (mix of katakana, numbers, and latin code markers)
-        const alphabet = "🥝0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZシステム";
-        const fontSize = 16;
-        let columns = canvas.width / fontSize;
-
-        const rainDrops = [];
-        for (let x = 0; x < columns; x++) {
-            rainDrops[x] = 1;
-        }
-
-        // Color Spectrum definitions for Gold
-        const goldShades = ["#d4af37", "#f3e5ab", "#aa7c11", "#ffdf00", "#b59410"];
-
-        function drawMatrix() {
-            // Slight transparency trail creates the digital rain motion decay
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            for (let i = 0; i < rainDrops.length; i++) {
-                const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
-                
-                // Randomly alternate gold shades to give depth/shimmer
-                ctx.fillStyle = goldShades[Math.floor(Math.random() * goldShades.length)];
-                ctx.font = fontSize + 'px monospace';
-                
-                // First characters in columns occasionally glow pure white
-                if(Math.random() > 0.98) {
-                    ctx.fillStyle = "#ffffff";
-                }
-
-                ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
-
-                if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                    rainDrops[i] = 0;
-                }
-                rainDrops[i]++;
-            }
-        }
-
-        // Interactive speed boost function when clicking the interface button
-        function triggerOverload() {
-            clearInterval(matrixInterval);
-            // Speed up rendering temporarily
-            matrixInterval = setInterval(drawMatrix, 15);
-            setTimeout(() => {
-                clearInterval(matrixInterval);
-                matrixInterval = setInterval(drawMatrix, 33);
-            }, 2000);
-        }
-
-        // Loop execution (roughly 30 FPS base speed)
-        let matrixInterval = setInterval(drawMatrix, 33);
-    </script>
-</body>
-</html>
+            <div class="game-card">
+                <div class="game-meta">
+                    <div class="game-icon">🕹️</div>
+                    <div class="game-title">Poki Terminal</div>
+                    <p class="game-desc">Loads an massive repository of casual web games completely optimized for lightning web execution.</p>
+                </div>
